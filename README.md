@@ -40,7 +40,7 @@ models.go
         return gopsql.InsertNew(*c).Scan(&b.ID)
     }
 
-    func (b *Book) Find() (error) {
+    func (b *Book) Find() error {
         rows, err := gopsql.GetFiltered(*b, "ID", string(b.ID))
         if err != nil {
             return err
@@ -131,7 +131,7 @@ main.go
         b.Author = "Mr. Foo Bar"
 
         // Save it to DB
-        b.Save()
+        err := b.Save()
 
         // Not going to check the error here, but you should
 
@@ -139,14 +139,14 @@ main.go
         p := Page{}
         p.BookID = b.ID // The book ID is now there
         p.Content = "Hello World!"
-        p.Save()
+        err := p.Save()
 
         // Remember the to check the error here as well
 
         // Let's retrieve it from the DB
         b2 := Book{}
         b2.ID = b.ID
-        b2.Find()
+        err := b2.Find()
 
         // Again, check the error!
 
