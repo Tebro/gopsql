@@ -13,7 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var createTableQueryTemplate = `
+const createTableQueryTemplate = `
 	CREATE TABLE IF NOT EXISTS %s (
 		%s
 	);
@@ -34,7 +34,7 @@ func getCreateTableQuery(obj interface{}) string {
 	return fmt.Sprintf(createTableQueryTemplate, columnName, strings.Join(fieldLines, ","))
 }
 
-var selectAllQueryTemplate = "SELECT %s FROM %s;"
+const selectAllQueryTemplate = "SELECT %s FROM %s;"
 
 func getSelectAllQuery(obj interface{}) (string, bool) {
 	objType := reflect.TypeOf(obj)
@@ -138,7 +138,7 @@ func InsertNew(obj Saveable) *sql.Row {
 	return db.QueryRow(q)
 }
 
-var updateQueryTemplate = "UPDATE %s SET %s WHERE %s;"
+const updateQueryTemplate = "UPDATE %s SET %s WHERE %s;"
 
 type updateKeyValuePair struct {
 	k string
@@ -177,7 +177,7 @@ func getUpdateQuery(obj Saveable) string {
 
 }
 
-var insertQueryTemplate = "INSERT INTO %s (%s) VALUES (%s) RETURNING ID;"
+const insertQueryTemplate = "INSERT INTO %s (%s) VALUES (%s) RETURNING ID;"
 
 func getInsertQuery(obj Saveable) string {
 	objVal := reflect.ValueOf(obj)
@@ -211,7 +211,7 @@ func getInsertQuery(obj Saveable) string {
 
 }
 
-var deleteQueryTemplate = "DELETE FROM %s WHERE ID='%v';"
+const deleteQueryTemplate = "DELETE FROM %s WHERE ID='%v';"
 
 func getDeleteQuery(obj Saveable) string {
 	columnName := reflect.ValueOf(obj).Type().Name()
