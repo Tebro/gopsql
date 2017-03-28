@@ -2,6 +2,9 @@ package gopsql
 
 import "testing"
 
+// Run me with `go test -v` and check the output.
+// TODO: Real tests.
+
 type testType struct {
 	ID    int    `column_type:"SERIAL primary key" column_order_by:"yes"`
 	Alive bool   `column_type:"bool"`
