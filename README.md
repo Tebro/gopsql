@@ -37,7 +37,7 @@ func (b *Book) Save() error {
         return gopsql.UpdateExisting(*b)
     }
     // New
-    return gopsql.InsertNew(*c).Scan(&b.ID)
+    return gopsql.InsertNew(*b).Scan(&b.ID)
 }
 
 func (b *Book) Find() error {
@@ -52,7 +52,7 @@ func (b *Book) Find() error {
         if err != nil {
             return err
         }
-        b.Pages, err := (Page{}).GetAllForBook(b.ID)
+        b.Pages, err = (&Page{}).GetAllForBook(b.ID)
         return err
     }
     return errors.New("No matching book found")
