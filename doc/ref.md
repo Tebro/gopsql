@@ -7,12 +7,12 @@ The library is used for serializing your own structs into SQL queries for Postgr
 The library contains the following interface:
 
 ### Saveable
-
-    type Saveable interface {
-	    GetID() int
-	    SetID(int)
-    }
-
+```go
+type Saveable interface {
+    GetID() int
+    SetID(int)
+}
+```
 This interface needs to be implemented by all types you wish to save.
 
 ## Functions
@@ -21,7 +21,9 @@ The library provides the following functions.
 
 ### Setup
 
-    func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode string, types []Saveable)
+```go
+func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode string, types []Saveable)
+```
 
 This is the function that needs to be called first, it sets up the connection to the database and initializes the database tables based on the types provided.
 
@@ -64,7 +66,9 @@ The tables are created with "CREATE TABLE IF NOT EXISTS". Which means that it do
 
 ### InsertNew
 
-    func InsertNew(obj Saveable) *sql.Row
+```go
+func InsertNew(obj Saveable) *sql.Row
+```
 
 This functions inserts a new row into a table.
 
@@ -79,7 +83,9 @@ The function returns a `*sql.Row`, you have to handle the result from the databa
 
 ### UpdateExisting
 
-    func UpdateExisting(obj Saveable) error
+```go
+func UpdateExisting(obj Saveable) error
+```
 
 This function updates an existing row in the database.
 
@@ -94,7 +100,9 @@ The function overwrites everything in the row with the values from the provided 
 
 ### GetAll
 
-    func GetAll(obj interface{}) (*sql.Rows, error)
+```go
+func GetAll(obj interface{}) (*sql.Rows, error)
+```
 
 The function returns all rows from the table that matches the provided type.
 
@@ -103,13 +111,17 @@ You need to handle the returned *sql.Rows yourself to map them to your type.
 
 ### GetFiltered
 
-    func GetFiltered(obj interface{}, filter ...string) (*sql.Rows, error)
+```go
+func GetFiltered(obj interface{}, filter ...string) (*sql.Rows, error)
+```
 
 Returns a subset of rows from a table, based on the provided filter.
 
 #### Example usage
 
-    gopsql.GetFiltered(myStruct{}, "city", "new york", "AND", "age" "30")
+```go
+gopsql.GetFiltered(myStruct{}, "city", "new york", "AND", "age" "30")
+```
 
 #### Params
 
@@ -124,7 +136,9 @@ A type that has a corresponding table in the database.
 
 ### Delete
 
-    func Delete(obj Saveable) error
+```go
+func Delete(obj Saveable) error
+```
 
 Deletes a row from the database. The provided objects Saveable.GetID() needs to return a unique identifier (like primary key) which can be used to identify which row to delete.
 
