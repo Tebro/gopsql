@@ -246,7 +246,7 @@ func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode s
 	dbOK := false
 	// Check connection, retry 10 times.
 	for retry := 0; retry < 10; retry++ {
-		_, err = db.Exec("SELECT 'Hello World'")
+		err = db.Ping()
 		if err != nil {
 			logger.Error(fmt.Sprintf("Cannot reach database. Waiting 5 seconds before retrying. Try: %d", retry+1))
 			time.Sleep(5 * time.Second)
