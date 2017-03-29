@@ -1,4 +1,5 @@
 # Gopsql
+[![Build Status](https://travis-ci.org/Tebro/gopsql.svg?branch=master)](https://travis-ci.org/Tebro/gopsql)
 
 This is a library that helps in serializing structs into database queries.
 
