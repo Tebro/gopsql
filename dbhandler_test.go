@@ -1,52 +1,136 @@
 package gopsql
 
-import "testing"
+import (
+	"os"
+	"testing"
 
-// Run me with `go test -v` and check the output.
-// TODO: Real tests.
+	"github.com/Tebro/logger"
+)
 
-type testType struct {
-	ID    int    `column_type:"SERIAL primary key" column_order_by:"yes"`
-	Alive bool   `column_type:"bool"`
-	Title string `column_type:"varchar(255)"`
+//Setup
+func TestMain(m *testing.M) {
+	logger.SetDebug()
+
+	dbHost := "localhost"
+
+	if v, ok := os.LookupEnv("POSTGRES_HOST"); ok {
+		dbHost = v
+	}
+
+	dbUser := "postgres"
+	dbPass := "postgres"
+	dbName := "postgres"
+	sslMode := "disable"
+
+	models := []Saveable{
+		Book{},
+		Page{},
+	}
+
+	err := Setup(dbHost, dbUser, dbPass, dbName, sslMode, models)
+
+	if err != nil {
+		logger.Error(err)
+		logger.Fatal("Failed to connect to database.")
+	}
+
+	os.Exit(m.Run())
 }
 
-func (t testType) GetID() int {
-	return t.ID
-}
-func (t testType) SetID(id int) {
-	t.ID = id
+const bookTitle = "Foobar"
+const bookAuthor = "Mr. Foo Bar"
+
+func getTestBook() Book {
+	b := Book{}
+	b.Title = bookTitle
+	b.Author = bookAuthor
+	return b
 }
 
-func TestCreateTableQueryCreation(t *testing.T) {
-	t.Log(getCreateTableQuery(testType{}))
+const pageContent = "Hello World!"
+
+func getTestPage() Page {
+	p := Page{}
+	p.Content = pageContent
+	return p
 }
 
-func TestSelectAllQueryCreation(t *testing.T) {
-	t.Log(getSelectAllQuery(testType{}))
+func getTestPageForBook(b Book) Page {
+	p := getTestPage()
+	p.BookID = b.GetID()
+	return p
 }
 
-func TestParseFilterString(t *testing.T) {
-	res, err := parseFilterString("key1", "value1", "AND", "key2", "value2")
-	t.Log(res)
+func TestInsertion(t *testing.T) {
+	b := getTestBook()
+
+	err := b.Save()
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func TestSelectFilteredQueryCreation(t *testing.T) {
-	filter, _ := parseFilterString("Alive", "t")
+func TestInsertionAndRetrieval(t *testing.T) {
+	b := getTestBook()
 
-	res := getSelectFilteredQuery(testType{}, filter)
-	t.Log(res)
+	err := b.Save()
+	if err != nil {
+		t.Error(err)
+	}
+
+	b2 := Book{}
+	b2.ID = b.GetID()
+	err = b2.Find()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if b2.Author != bookAuthor {
+		t.Errorf("Author does not match, got: %s", b2.Author)
+	}
+
+	if b2.Title != bookTitle {
+		t.Errorf("Title does not match, got: %s", b2.Title)
+	}
 }
 
-func TestInsertQueryCreation(t *testing.T) {
-	tt := testType{0, true, "Hello"}
-	t.Log(getInsertQuery(tt))
+func TestUpdating(t *testing.T) {
+	const updatedTitle = "BamBazBat"
+
+	b := getTestBook()
+
+	err := b.Save()
+	if err != nil {
+		t.Error(err)
+	}
+
+	b.Title = updatedTitle
+	err = b.Save()
+	if err != nil {
+		t.Error(err)
+	}
+
+	b2 := Book{}
+	b2.ID = b.GetID()
+	err = b2.Find()
+	if err != nil {
+		t.Error(err)
+	}
+	if b2.Title != updatedTitle {
+		t.Errorf("Title does not match, got: %s", b2.Title)
+	}
 }
 
-func TestUpdateQueryCreation(t *testing.T) {
-	tt := testType{13, true, "Hello"}
-	t.Log(getUpdateQuery(tt))
+func TestDeleting(t *testing.T) {
+	b := getTestBook()
+
+	err := b.Save()
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = b.Delete()
+	if err != nil {
+		t.Error(err)
+	}
 }
