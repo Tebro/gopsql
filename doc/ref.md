@@ -22,7 +22,7 @@ The library provides the following functions.
 ### Setup
 
 ```go
-func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode string, types []Saveable)
+func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode string, types []Saveable) error
 ```
 
 This is the function that needs to be called first, it sets up the connection to the database and initializes the database tables based on the types provided.
