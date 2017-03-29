@@ -220,7 +220,7 @@ func Delete(obj Saveable) error {
 var db *sql.DB
 
 // Setup connects to the database and makes sure the schema is inserted
-func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode string, types []Saveable) {
+func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode string, types []Saveable) error {
 
 	_sslMode := "disable"
 	if sslMode != "" {
@@ -232,7 +232,8 @@ func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode s
 	var err error
 	db, err = sql.Open("postgres", dbURL)
 	if err != nil {
-		logger.Fatal(fmt.Sprintf("Unable to open database connection. Connection URL: %s", dbURL))
+		logger.Error(fmt.Sprintf("Unable to open database connection. Connection URL: %s", dbURL))
+		return errors.New("unable to connect to the database")
 	}
 
 	dbOK := false
@@ -250,7 +251,7 @@ func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode s
 
 	if !dbOK {
 		logger.Debug(fmt.Sprintf("Connection URL: %s", dbURL))
-		logger.Fatal("Unable to open database connection.")
+		return errors.New("unable to open database connection")
 	}
 
 	db.SetMaxIdleConns(0)
@@ -259,9 +260,10 @@ func Setup(dbHost string, dbUser string, dbPass string, dbName string, sslMode s
 		_, err = db.Exec(getCreateTableQuery(t))
 		if err != nil {
 			logger.Error(err)
-			logger.Fatal(fmt.Sprintf("Failed to create table for %s", reflect.TypeOf(t).Name()))
+			return fmt.Errorf("failed to create table for: %s", reflect.TypeOf(t).Name())
 		}
 	}
 
 	logger.Log("Database configured")
+	return nil
 }
