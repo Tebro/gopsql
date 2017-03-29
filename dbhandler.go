@@ -136,18 +136,10 @@ func InsertNew(obj Saveable) *sql.Row {
 	q := getInsertQuery(obj)
 
 	return db.QueryRow(q)
+
 }
 
 const updateQueryTemplate = "UPDATE %s SET %s WHERE %s;"
-
-type updateKeyValuePair struct {
-	k string
-	v interface{}
-}
-
-func (ukvp *updateKeyValuePair) GetText() string {
-	return fmt.Sprintf("%s=%v", ukvp.k, ukvp.v)
-}
 
 func getUpdateQuery(obj Saveable) string {
 	objVal := reflect.ValueOf(obj)
