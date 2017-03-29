@@ -3,7 +3,7 @@
 
 This is a library that helps in serializing structs into database queries.
 
-Currently only supports PostgreSQL.
+This is for PostgreSQL.
 
 ## Usage example
 
