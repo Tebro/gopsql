@@ -2,9 +2,11 @@ package gopsql
 
 import (
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/Tebro/logger"
+	_ "github.com/lib/pq"
 )
 
 //Setup
@@ -132,5 +134,119 @@ func TestDeleting(t *testing.T) {
 	err = b.Delete()
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func Test_parseFilterString(t *testing.T) {
+	type args struct {
+		filters []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		want1   []string
+		wantErr bool
+	}{
+		{
+			name:    "TestWithNoArgs",
+			wantErr: true,
+		},
+		{
+			name:    "TestWithOneArg",
+			wantErr: true,
+			args: args{
+				filters: []string{
+					"Foo",
+				},
+			},
+		},
+		{
+			name:    "TestWithTwoArgs",
+			wantErr: false,
+			want:    "key=$1",
+			want1: []string{
+				"value",
+			},
+			args: args{
+				filters: []string{
+					"key",
+					"value",
+				},
+			},
+		},
+		{
+			name:    "TestWithTwoPairs",
+			wantErr: false,
+			want:    "key1=$1 AND key2=$2",
+			want1: []string{
+				"value1",
+				"value2",
+			},
+			args: args{
+				filters: []string{
+					"key1",
+					"value1",
+					"AND",
+					"key2",
+					"value2",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, err := parseFilterString(tt.args.filters...)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseFilterString() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("parseFilterString() got = %v, want %v", got, tt.want)
+			}
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("parseFilterString() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func Test_getSelectAllQuery(t *testing.T) {
+	type args struct {
+		obj interface{}
+	}
+	tests := []struct {
+		name  string
+		args  args
+		want  string
+		want1 bool
+	}{
+		{
+			name:  "StructWithoutOrderByField",
+			want:  "SELECT ID,Title,Author FROM Book;",
+			want1: false,
+			args: args{
+				obj: Book{},
+			},
+		},
+		{
+			name:  "StructWithOrderByField",
+			want:  "SELECT ID,BookID,Content FROM Page ORDER BY ID;",
+			want1: true,
+			args: args{
+				obj: Page{},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := getSelectAllQuery(tt.args.obj)
+			if got != tt.want {
+				t.Errorf("getSelectAllQuery() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("getSelectAllQuery() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
 	}
 }
